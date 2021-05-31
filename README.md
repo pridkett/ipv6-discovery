@@ -26,6 +26,8 @@ retention_time = 7200
 rescan_interval = 360
 #  set the destination for the output
 outputfile = "ipv6.hosts"
+# set the hostname suffix
+hostname_suffix = "ipv6.local.example.com"
 
 [ipv6hosts]
     [ipv6hosts.pihole]

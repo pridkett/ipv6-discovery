@@ -23,6 +23,7 @@ type tomlConfig struct {
 	RetentionTime  int
 	RescanInterval int
 	OutputFile     string
+	HostnameSuffix string
 	IPv6Hosts      map[string]Server
 	IPv4Hosts      map[string]Server
 }
@@ -51,10 +52,9 @@ type Host struct {
 
 var hosts map[string]Host
 
-var ipv6HostnameSuffix = "ipv6.ew.wagstrom.net"
-
 const DEFAULT_RETENTION_TIME = 7200
 const DEFAULT_RESCAN_INTERVAL = 360
+const DEFAULT_HOSTNAME_SUFFIX = "ipv6.local"
 
 func main() {
 	var err error
@@ -81,6 +81,9 @@ func main() {
 	}
 	if config.RescanInterval == 0 {
 		config.RescanInterval = DEFAULT_RESCAN_INTERVAL
+	}
+	if config.HostnameSuffix == "" {
+		config.HostnameSuffix = DEFAULT_HOSTNAME_SUFFIX
 	}
 
 	agent_auth, err := goph.UseAgent()
@@ -132,7 +135,7 @@ func main() {
 		getIPv6Hosts(host.Host, host.Username, host.Command, config.KeepLocal, host.GophAuth)
 	}
 
-	mapHostnames(config.OutputFile)
+	mapHostnames(config.OutputFile, config.HostnameSuffix)
 }
 
 func getIPv4Mappings(host string, user string, cmd string, auth goph.Auth) {
@@ -242,7 +245,7 @@ func getIPv6Hosts(host string, user string, cmd string, keep_local bool, auth go
 	log.Printf("hosts: %d", len(hosts))
 }
 
-func mapHostnames(output_file string) {
+func mapHostnames(output_file string, hostname_suffix string) {
 	output_string := ""
 
 	for key, host := range hosts {
@@ -257,7 +260,7 @@ func mapHostnames(output_file string) {
 			}
 			for i := range host.ipv6hosts {
 				ipv6host := host.ipv6hosts[i].address
-				output_string += fmt.Sprintf("%s %s.%s\n", ipv6host, hostname, ipv6HostnameSuffix)
+				output_string += fmt.Sprintf("%s %s.%s\n", ipv6host, hostname, hostname_suffix)
 			}
 		}
 	}
